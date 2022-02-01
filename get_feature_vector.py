@@ -17,21 +17,6 @@ import networkx as nx
 from scipy.spatial import distance
 import image_cn_modeling as icm
 
-def get_from_dataset():
-    dataset=pd.read_csv('50_Startups.csv')
-    X = dataset.iloc[:,:-1].values
-    y = dataset.iloc[:, -1].values
-    
-    ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [3])], 
-                           remainder='passthrough')
-    X = np.array(ct.fit_transform(X),dtype=np.float64)
-    
-    
-    rows = X.shape[0]
-    columns = X.shape[1]
-    
-    
-    return X,y,rows,columns
 
 def get_cn_measures(G):
     #array to store out degree values

@@ -8,11 +8,8 @@ Created on Mon Oct 25 13:58:46 2021
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-import watts_strogatz as ws
-import itertools
+import networklib as nl
 import math
-import pandas as pd
-import seaborn as sns
 
 
 LLNASIZE=8
@@ -135,9 +132,11 @@ def get_temporal_pattern(G,Brule,Srule, steps, nbSize=LLNASIZE):
         density = np.zeros(len(G.nodes))
         for k,l in G.edges():
             if(x[i][k]):
-                density[l]+=1/G.nodes[l]['degree']
+                if(G.nodes[l]['degree']!=0):
+                    density[l]+=1/G.nodes[l]['degree']
             if(x[i][l]):
-                density[k]+=1/G.nodes[k]['degree']
+                if(G.nodes[l]['degree']!=0):
+                    density[k]+=1/G.nodes[k]['degree']
                 
         for k in range(len(G.nodes)):
             G.nodes[k]['density'] = density[k]
