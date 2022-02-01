@@ -25,6 +25,15 @@ def encode_1d_to_2d(i, width):
 
 def create_graph(img):
     img_height, img_width = img.shape
+    G = nx.Graph()
+    for i in range(img_height):
+        for j in range(img_width):
+            G.add_node(encode_2d_to_1d(i,j,img_width))
+            
+    return G
+
+def create_digraph(img):
+    img_height, img_width = img.shape
     G = nx.DiGraph()
     for i in range(img_height):
         for j in range(img_width):
@@ -35,6 +44,7 @@ def create_graph(img):
 
 #R is radius of connection and L is the maximum intensity of a pixel
 def connect_neighborhood(img, G, R=4, L=255):
+    img = np.int32(img)
     img_height, img_width = img.shape
     L = np.int32(L)
     
@@ -47,9 +57,9 @@ def connect_neighborhood(img, G, R=4, L=255):
                         if(x>=0 and x<img_width):
                             window_node_index = encode_2d_to_1d(x, y, img_width)
                             d = distance.euclidean((i,j),(y,x))
-                            if(img[i,j]<img[y,x] and d<=R):
+                            if(img[i,j]<img[y,x] and (d>0 and d<=R)):
                                 if(R==1):
-                                    weight = (abs(img[i,j]-img[y,x])/L)
+                                    weight = abs(img[i,j]-img[x,y])/L
                                 else:
                                     weight = ((d-1)/(R-1) + (abs(img[i,j]-img[y,x]))/L)/2
                                 

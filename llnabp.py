@@ -10,10 +10,63 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networklib as nl
 import math
-
+import datetime
 
 LLNASIZE=8
 
+
+
+# run the network in an optimized way
+def get_temporal_pattern_opt(init_cond, density, degree, adjlist, Brule, Srule, steps, nbSize=LLNASIZE):
+    
+    
+    state =  np.copy(init_cond)
+    x = np.zeros((steps, len(state)), dtype=np.int32)
+    
+    x[0] = state
+    
+    
+    for i in range(1,steps):    
+        for j in range(len(state)):
+            if(state[j] == 0):
+                total = 0
+                for k in Brule:
+                    
+                    if(k < nbSize and (k/(nbSize+1) <= density[j] and density[j] < k+1/(nbSize+1))):
+                        total+=1
+                        break
+                    elif(k == nbSize and (k/(nbSize+1) <= density[j] and density[j] <= k+1/(nbSize+1))):
+                        total+=1
+                        break
+                if(total > 0):
+                    state[j]=1
+                    for k in adjlist[j]:
+                        if(degree[k]!=0):
+                            density[k]+=1/degree[k]
+                else:
+                    state[j]=0
+            else:
+                total = 0
+                for k in Srule:
+                    
+                    if(k < nbSize and (k/(nbSize+1) <= density[j] and density[j] < k+1/(nbSize+1))):
+                        total+=1
+                        break
+                    elif(k == nbSize and (k/(nbSize+1) <= density[j] and density[j] <= k+1/(nbSize+1))):
+                        total+=1
+                        break
+                if(total > 0):
+                    state[j]=1
+                else:
+                    state[j]=0
+                    for k in adjlist[j]:
+                        if(degree[k]!=0):
+                            density[k]-=1/degree[k]
+                        
+        x[i] = state
+
+    return x
+    
   
 #encode the decimal binary patterns of the TEP
 def dec_bp(data, d):

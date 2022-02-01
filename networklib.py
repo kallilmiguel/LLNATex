@@ -39,6 +39,28 @@ def set_attributes(G, init_cond):
         attr[i]['degree'] = degree[i]
         
     nx.set_node_attributes(G, attr)
+    
+#return the network's attrributes
+def ret_attributes(G, init_cond):
+    
+    density = np.zeros(len(G.nodes), dtype=np.float32)
+    
+    degree = np.zeros(len(G.nodes),dtype=np.int32)
+        
+    adjlist = G.adj
+    
+    for i in range(len(adjlist)):
+        for j in adjlist[i]:
+            degree[j]+=1
+    
+    for i,j in G.edges():
+        if(init_cond[i]):
+            density[j]+=1/degree[j]
+        if(init_cond[j]):
+            density[i]+=1/degree[i]
+    
+     
+    return density, degree, adjlist
 
 #construct a regular network 
 #with each node connected to his 4 closest neighbors

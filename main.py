@@ -17,6 +17,7 @@ import os
 import itertools
 
 
+
 LLNASIZE=8
 steps = 350
 DATADIR = "data/USPTex/images/"
@@ -55,7 +56,9 @@ for image_path in images_pathlist:
     
     G = (icm.create_graph(img))
     
-    nl.set_attributes(G, init_cond)
+    # nl.set_attributes(G, init_cond)
+    density, degree, adjList = nl.ret_attributes(G, init_cond)
+    
     
     icm.connect_neighborhood(img, G, R=1)
     
@@ -64,7 +67,7 @@ for image_path in images_pathlist:
             
             print(f"{bRule}/{sRule}\n")
             
-            lbp.get_temporal_pattern(G, bRule, sRule, steps)
+            lbp.get_temporal_pattern_opt(init_cond, density, degree, adjList, bRule, sRule, steps)
             
             
             
