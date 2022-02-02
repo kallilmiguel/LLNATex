@@ -56,11 +56,13 @@ for image_path in images_pathlist:
     
     G = (icm.create_graph(img))
     
+    icm.connect_neighborhood(img, G, R=1)
+    
     # nl.set_attributes(G, init_cond)
     density, degree, adjList = nl.ret_attributes(G, init_cond)
     
     
-    icm.connect_neighborhood(img, G, R=1)
+    
     
     for bRule in bRules:
         for sRule in sRules:

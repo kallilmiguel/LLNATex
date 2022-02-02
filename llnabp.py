@@ -25,6 +25,7 @@ def get_temporal_pattern_opt(init_cond, density, degree, adjlist, Brule, Srule, 
     
     x[0] = state
     
+    resolution = np.linspace(0,1,nbSize+2)
     
     for i in range(1,steps):    
         for j in range(len(state)):
@@ -32,10 +33,10 @@ def get_temporal_pattern_opt(init_cond, density, degree, adjlist, Brule, Srule, 
                 total = 0
                 for k in Brule:
                     
-                    if(k < nbSize and (k/(nbSize+1) <= density[j] and density[j] < k+1/(nbSize+1))):
+                    if(k < nbSize and (resolution[k] <= density[j] and density[j] < resolution[k+1])):
                         total+=1
                         break
-                    elif(k == nbSize and (k/(nbSize+1) <= density[j] and density[j] <= k+1/(nbSize+1))):
+                    elif(k == nbSize and (resolution[k] <= density[j] and density[j] <= resolution[k+2])):
                         total+=1
                         break
                 if(total > 0):
@@ -49,12 +50,11 @@ def get_temporal_pattern_opt(init_cond, density, degree, adjlist, Brule, Srule, 
                 total = 0
                 for k in Srule:
                     
-                    if(k < nbSize and (k/(nbSize+1) <= density[j] and density[j] < k+1/(nbSize+1))):
+                    if(k < nbSize and (resolution[k] <= density[j] and density[j] < resolution[k+1])):
                         total+=1
                         break
-                    elif(k == nbSize and (k/(nbSize+1) <= density[j] and density[j] <= k+1/(nbSize+1))):
+                    elif(k == nbSize and (resolution[k] <= density[j] and density[j] <= resolution[k+2])):
                         total+=1
-                        break
                 if(total > 0):
                     state[j]=1
                 else:
