@@ -69,7 +69,9 @@ for image_path in images_pathlist:
             
             print(f"{bRule}/{sRule}\n")
             
-            lbp.get_temporal_pattern_opt(init_cond, density, degree, adjList, bRule, sRule, steps)
+            x = np.zeros(shape=(steps, len(init_cond)))
+            
+            lbp.get_temporal_pattern_opt(x, init_cond, density, degree, adjList, bRule, sRule)
             
             
             

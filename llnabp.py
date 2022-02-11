@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import networklib as nl
 import math
 import datetime
+from numba import jit
 
 LLNASIZE=8
 
