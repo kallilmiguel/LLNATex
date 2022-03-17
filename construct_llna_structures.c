@@ -63,28 +63,19 @@ void printGraph(Graph* graph)
     }
 }
 
-Graph* construct_graph_from_image(int rows, int cols, int *img, int L, int R){
+Graph* construct_graph_from_image(int rows, int cols, int *img, int R){
 
     //Create the graph
     Graph *G = createGraph(rows*cols);
 
-    double weight;
     for (int i=0;i<rows;i++){
         for(int j=0;j<cols;j++){
             for(int y=i-R;y<=i+R;y++){
                 if(y >= 0 && y<rows){
                     for(int x=j-R;x<=i+R;x++){
                         if(x >= 0 && x<cols){
-                            weight=0;
                             double d = sqrt(pow(i-y,2)+pow(j-x,2));
                             if(img[j+i*cols] <= img[x+y*cols] && d<=R){
-                                int diff = abs(img[j+i*cols] - img[x+y*cols]);
-                                if(R==1){
-                                    weight= (double) diff/L;
-                                }
-                                else{
-                                    weight = ((d-1)/(double)(R-1) + diff/(double)L)/2;
-                                }
                                 addEdge(G, j+i*cols,x+y*cols);
                             }
                         }
@@ -105,8 +96,7 @@ const char *get_filename_ext(const char *filename){
 }
 
 int main(void){
-
-    int L=255;
+    
     int R=11;
 
     struct dirent *dir;
@@ -143,7 +133,7 @@ int main(void){
                 fclose(matrix);
 
 
-                Graph *G = construct_graph_from_image(rows, cols, img,L,R);
+                Graph *G = construct_graph_from_image(rows, cols, img,R);
                 counter++;
 
                 free(path);
