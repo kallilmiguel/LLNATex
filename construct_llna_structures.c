@@ -3,6 +3,7 @@
 #include<math.h>
 #include<dirent.h>
 #include<string.h>
+#include<stdbool.h>
 
 typedef struct node{
     int vertex;
@@ -15,6 +16,12 @@ typedef struct{
     int numVertices;
     node** adjLists;
 }Graph;
+
+//struct for life like rules
+typedef struct{
+    int* bRule; 
+    int* sRule;
+}rule;
 
 //Create a node
 node* createNode(int v){
@@ -89,6 +96,24 @@ Graph* construct_graph_from_image(int rows, int cols, int *img, int R){
 
 }
 
+
+bool isInList(int array[], int value){
+    int size = sizeof(array)/sizeof(int);
+
+    for(int i=0;i < size; i++){
+        if(array[i]==value)
+            return true;
+    }
+    return false;
+}
+
+rule* createSetOfLLRules(){
+    rule *rules = malloc(sizeof(rule)*pow(2,18));
+
+
+}
+
+
 const char *get_filename_ext(const char *filename){
     const char *dot = strrchr(filename, '.');
     if(!dot || dot == filename) return "";
@@ -96,9 +121,9 @@ const char *get_filename_ext(const char *filename){
 }
 
 int main(void){
-    
-    int R=11;
 
+    int R=11;
+    rule *r = createSetOfLLRules();
     struct dirent *dir;
     DIR *d;
     char *sdir = (char*) malloc(sizeof(char)*30);
