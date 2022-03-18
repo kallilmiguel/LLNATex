@@ -5,6 +5,12 @@
 #include<string.h>
 #include<stdbool.h>
 
+#define NB_SIZE 8
+
+typedef struct{
+    bool rule[NB_SIZE+1];
+}rules;
+
 typedef struct node{
     int vertex;
     struct node* next;
@@ -16,12 +22,6 @@ typedef struct{
     int numVertices;
     node** adjLists;
 }Graph;
-
-//struct for life like rules
-typedef struct{
-    int* bRule; 
-    int* sRule;
-}rule;
 
 //Create a node
 node* createNode(int v){
@@ -96,9 +96,35 @@ Graph* construct_graph_from_image(int rows, int cols, int *img, int R){
 
 }
 
+rules* getAllRules(){
+    rules *allRules = malloc(sizeof(rules)*512);
+
+    int counter=0;
+
+    FILE *ruleFile;
+    char *rulePath = "data/rules/rules.csv";
+
+    ruleFile = fopen(rulePath, "r");
+    rules *pRules = &allRules[counter];
+    while(1){
+        char c=fgetc(ruleFile);
+        if(c== EOF){
+            break;
+        }
+        else if(c == '\n'){
+            counter++;
+            pRules = &allRules[counter];
+        }
+        else if(c != ','&& c != ' '){
+            allRules[counter].rule[(int)c-48]=true;
+        }
+    }
+    return allRules;
+}
 
 bool isInList(int array[], int value){
-    int size = sizeof(array)/sizeof(int);
+    int size = sizeof(array)/sizeof(array[0]);
+
 
     for(int i=0;i < size; i++){
         if(array[i]==value)
@@ -107,12 +133,67 @@ bool isInList(int array[], int value){
     return false;
 }
 
-rule* createSetOfLLRules(){
-    rule *rules = malloc(sizeof(rule)*pow(2,18));
+void generateAllTep(rules* bRules, rules *sRules, Graph *G, int number_of_nodes, int steps){
 
+    int counterB = 0;
+    int counterS = 0;
+    
+    double density[number_of_nodes];
+    double resolution[NB_SIZE+1];
+
+    for(int i=0;i<NB_SIZE+1;i++){
+        resolution[i] = i+1/(double)NB_SIZE+1;
+    }
+
+    FILE *rules = fopen("data/rules/rules.csv", "r");
+
+    while(counterB < 512){
+        counterS=0;
+        printf("\nBirth Rule number %d\n", counterB);
+        while(counterS < 512){
+            bool TEP[steps][number_of_nodes];
+            for(int i=0;i<number_of_nodes;i++){
+                TEP[0][i] = rand() & 1;
+            }
+            for(int i=1;i<steps;i++){
+                for(int j=0;j<number_of_nodes;j++){
+                    int degree=0;
+                    int num_neighbors_alive=0;
+                    node *p = G->adjLists[i];
+                    while(p){
+                        p = p->next;
+                        degree++;
+                        if(TEP[i-1][j]==1){
+                            num_neighbors_alive+=1;
+                        }
+                    }
+                    density[i] = (double)num_neighbors_alive/(double)degree;
+                    if(TEP[i-1][j] == 0){
+                        for(int k=0;k<NB_SIZE+1;k++){
+                            if(bRules[counterB].rule[k] == true && density[i] >= resolution[k] && density[i] < resolution[k+1]){
+                                TEP[i][j]=1;
+                                break;
+                            }
+                            TEP[i][j]=0;
+                        }
+                    }
+                    else{
+                        for(int k=0;k<NB_SIZE+1;k++){
+                            if(sRules[counterS].rule[k] == true && density[i] >= resolution[k] && density[i] < resolution[k+1]){
+                                TEP[i][j]=1;
+                                break;
+                            }
+                            TEP[i][j]=0;
+                        }  
+                    }
+                }
+            }
+            counterS++;
+        }
+        counterB++;
+    }
 
 }
-
 
 const char *get_filename_ext(const char *filename){
     const char *dot = strrchr(filename, '.');
@@ -121,9 +202,12 @@ const char *get_filename_ext(const char *filename){
 }
 
 int main(void){
+    rules *bRules = getAllRules();
+    rules *sRules = getAllRules();
+
+    int steps = 350;
 
     int R=11;
-    rule *r = createSetOfLLRules();
     struct dirent *dir;
     DIR *d;
     char *sdir = (char*) malloc(sizeof(char)*30);
@@ -159,6 +243,9 @@ int main(void){
 
 
                 Graph *G = construct_graph_from_image(rows, cols, img,R);
+
+                generateAllTep(bRules,sRules, G, rows*cols, steps);
+
                 counter++;
 
                 free(path);
