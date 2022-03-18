@@ -31,7 +31,7 @@ void Graph::setAdjLists(Node** adjLists){
     this->adjLists = adjLists;
 }
 
-Node* Node::createNode(int v){
+Node* Graph::createNode(int v){
     Node *newNode = (Node*) malloc(sizeof(Node));
 
     newNode->vertex = v;
