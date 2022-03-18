@@ -159,7 +159,7 @@ void generateAllTep(rules* bRules, rules *sRules, Graph *G, int number_of_nodes,
                 for(int j=0;j<number_of_nodes;j++){
                     int degree=0;
                     int num_neighbors_alive=0;
-                    node *p = G->adjLists[i];
+                    node *p = G->adjLists[j];
                     while(p){
                         p = p->next;
                         degree++;
