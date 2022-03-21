@@ -204,12 +204,49 @@ const char *get_filename_ext(const char *filename){
     return dot + 1;
 }
 
+__global__ void execution_step(int** TEP, int iter, int number_of_nodes, double* resolution, 
+Graph* G, rules* bRule, rules *sRule){
+
+    int gid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int degree = 0;
+    int num_neighbors_alive=0;
+    double density[number_of_nodes];
+    node *p = G-> adjLists[iter];
+
+    while(p){
+        p = p->next;
+        degree++;
+        if(TEP[iter-1][gid]==1){
+                num_neighbors_alive+=1;
+        }
+    }
+    density[gid] = (double)num_neighbors_alive/(double)degree;
+    if(TEP[iter-1][gid] == 0){
+        for(int k=0;k<NB_SIZE+1;k++){
+            if(bRule.rule[k] == true && density[gid] >= resolution[k] && density[gid] < resolution[k+1]){
+                TEP[iter][gid]=1;
+                break;
+            }
+            TEP[iter][gid]=0;
+        }
+    }
+    else{
+        for(int k=0;k<NB_SIZE+1;k++){
+            if(sRules[counterS].rule[k] == true && density[gid] >= resolution[k] && density[gid] < resolution[k+1]){
+                TEP[iter][gid]=1;
+                break;
+            }
+            TEP[iter][gid]=0;
+        }
+    }
+}
+
 void generateTepGPU(rules* bRules, rules *sRules, Graph *G, int number_of_nodes, int steps){
 
     int counterB = 0;
     int counterS = 0;
-    
-    double density[number_of_nodes];
+
     double resolution[NB_SIZE+1];
 
     for(int i=0;i<NB_SIZE+1;i++){
@@ -232,9 +269,9 @@ void generateTepGPU(rules* bRules, rules *sRules, Graph *G, int number_of_nodes,
             bool TEP[steps][number_of_nodes];
             cudaMalloc((void**) &TEP, sizeof(TEP));
 
-            rule* gpu_bRule;
+            rules* gpu_bRule;
             cudaMalloc((void**)&gpu_bRule, sizeof(rules));
-            rule* gpu_sRule;
+            rules* gpu_sRule;
             cudaMalloc((void**)&gpu_sRule, sizeof(rules));
 
             cudaMemcpy(bRules[counterB], gpu_bRule, sizeof(rules),cudaMemcpyDeviceToHost);
@@ -250,45 +287,7 @@ void generateTepGPU(rules* bRules, rules *sRules, Graph *G, int number_of_nodes,
         }
         counterB++;
     }
-
 }
-
-__global__ void execution_step(int** TEP, int iter, int number_of_nodes, double* resolution, 
-Graph* G, rules* bRule, rules *sRule){
-
-    int gid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    int degree = 0;
-    int num_neighbors_alive=0;
-    node *p = G-> adjLists[iter];
-
-    while(p){
-        p = p->next;
-        degree++;
-        if(TEP[i-1][j]==1){
-                num_neighbors_alive+=1;
-        }
-    }
-    density[i] = (double)num_neighbors_alive/(double)degree;
-    if(TEP[i-1][j] == 0){
-        for(int k=0;k<NB_SIZE+1;k++){
-            if(bRule.rule[k] == true && density[iter] >= resolution[k] && density[iter] < resolution[k+1]){
-                TEP[i][j]=1;
-                break;
-            }
-            TEP[i][j]=0;
-        }
-    }
-    else{
-        for(int k=0;k<NB_SIZE+1;k++){
-            if(sRules[counterS].rule[k] == true && density[i] >= resolution[k] && density[i] < resolution[k+1]){
-                TEP[i][j]=1;
-                break;
-            }
-            TEP[i][j]=0;
-        }
-    }
-å}
 
 int main(void){
     rules *bRules = getAllRules();
