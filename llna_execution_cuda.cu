@@ -204,14 +204,14 @@ const char *get_filename_ext(const char *filename){
     return dot + 1;
 }
 
-__global__ void execution_step(int** TEP, int iter, int number_of_nodes, double* resolution, 
+__global__ void execution_step(bool** TEP, int iter, int number_of_nodes, double* resolution, 
 Graph* G, rules* bRule, rules *sRule){
 
     int gid = blockIdx.x * blockDim.x + threadIdx.x;
 
     int degree = 0;
     int num_neighbors_alive=0;
-    double density[number_of_nodes];
+    double density[number_of_nodes] = { 0 };
     node *p = G-> adjLists[iter];
 
     while(p){
@@ -233,7 +233,7 @@ Graph* G, rules* bRule, rules *sRule){
     }
     else{
         for(int k=0;k<NB_SIZE+1;k++){
-            if(sRules[counterS].rule[k] == true && density[gid] >= resolution[k] && density[gid] < resolution[k+1]){
+            if(sRule.rule[k] == true && density[gid] >= resolution[k] && density[gid] < resolution[k+1]){
                 TEP[iter][gid]=1;
                 break;
             }
