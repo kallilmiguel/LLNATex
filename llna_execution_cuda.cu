@@ -333,7 +333,7 @@ int main(void){
 
                 Graph *G = construct_graph_from_image(rows, cols, img,R);
 
-                generateAllTep(bRules,sRules, G, rows*cols, steps);
+                generateTepGPU(bRules,sRules, G, rows*cols, steps);
 
                 counter++;
 
